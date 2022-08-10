@@ -1,3 +1,13 @@
+import styled from "styled-components";
+
 export default function TelaPlano(){
-    return(<>Tela Plano</>);
+    return(
+    <Conteiner>
+        Tela Plano
+    </Conteiner>
+    );
 }
+
+const Conteiner = styled.div`
+    
+`;
