@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import UserContext from "../contexts/UserContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -16,7 +16,8 @@ function TelaPlanosItens({image, price, id}){
 }
 
 export default function TelaPlanos(){
-    const {token, planos, setPlanos} = useContext(UserContext);
+    const [planos, setPlanos] = useState([]);
+    const {token} = useContext(UserContext);
 
     useEffect(() => {
 

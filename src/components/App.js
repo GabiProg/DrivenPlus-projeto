@@ -10,12 +10,14 @@ import "../assets/Reset.css";
 
 export default function App(){
     const [token, setToken] = useState();
-    const [planos, setPlanos] = useState([]);
-
-
+    const [nomeImpresso, setNomeImpresso] = useState();
+    const [plano, setPlano] = useState();
+    const [dados, setDados] = useState();
+    
     return(
     <>
-    <UserContext.Provider value={{token, setToken, planos, setPlanos}}>
+    <UserContext.Provider value={{token, setToken, nomeImpresso, setNomeImpresso,
+    plano, setPlano, dados, setDados}}>
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<TelaLogin/>}/>

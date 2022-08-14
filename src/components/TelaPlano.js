@@ -1,108 +1,163 @@
 import styled from "styled-components";
-import Imgae from "../assets/Group 1.png";
 import { useState, useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import UserContext from "../contexts/UserContext";
 import axios from "axios";
+import PacoteItens from "./PacoteItens";
 
 export default function TelaPlano() {
-    const [click, setClick] = useState(false);
-    const [plano, setPlano] = useState();
-    const {token} = useContext(UserContext);
-    const {ID_DO_PLANO} = useParams();
+  const [click, setClick] = useState(false);
+  const [digitos, setDigitos] = useState();
+  const [seguranca, setSeguranca] = useState();
+  const [validade, setValidade] = useState();
+  const { token, nomeImpresso ,setNomeImpresso, plano, setPlano, setDados} = useContext(UserContext);
+  const navigate = useNavigate();
+  const { ID_DO_PLANO } = useParams();
+  const numeroIdSerializado = localStorage.getItem("numeroId");
+  const numeroId = JSON.parse(numeroIdSerializado);
+  console.log(numeroId);
 
-    useEffect(() => {
-        const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions/memberships/${ID_DO_PLANO}`;
+  useEffect(() => {
+    const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions/memberships/${ID_DO_PLANO}`;
 
-        const config = {
-            headers: {
-              "Authorization": `Bearer ${token}`
-            }
-        }
+    const config = {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    };
 
-        const promise = axios.get(URL, config);
-        
-        promise.then((res) => {
-            setPlano(res.data);
-            console.log(res.data);
-        });
+    const promise = axios.get(URL, config);
 
-    }, []);
+    promise.then((res) => {
+      const {data} = res;
+      setPlano(data);
+    });
+  }, []);
 
-    console.log(plano);
+  function EnviarDadosCompras(e){
+    e.preventDefault();
     
+    const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions`;
 
-    function TelaPlanoItens(props){
-    
-        const { price, image, name} = props.plano;
-       
-        console.log(price, image, name, props);
-    
-        return(
-        <>
-            <img src={image} alt="Imagem do plano escolhido" />
-            <Titulo>{name}</Titulo>
-            <Beneficios>
-              <div>
-                <ion-icon name="clipboard-outline"></ion-icon>
-                <p>Benefícios:</p>
-              </div>
-              <Pacote>
-                {plano?.perks.map((item, index) => {
-                    const {id, title} = item;
-                    return <PacoteItens key={id} id={id} title={title} index={index}/>})}
-              </Pacote>
-            </Beneficios>
-            <Preco>
-              <div>
-                <ion-icon name="cash-outline"></ion-icon>
-                <p>Preco:</p>
-              </div>
-              <span>R$ {price} cobrados mensalmente</span>
-            </Preco>
-        </>
-        );
-    }
+    const body = {
+      membershipId: numeroId,
+      cardName: nomeImpresso,
+      cardNumber: digitos,
+      securityNumber: seguranca,
+      expirationDate: validade
+    };
 
-    function PacoteItens({id, title, index}){
-        return(
-            <>
-            <h3>1.Brindes exclusivos</h3>
-            </>
-        );
-    }
+    const config = {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    };
+
+    const promise = axios.post(URL, body, config);
+    promise.then((res) =>{
+      console.log(res.data);
+      setDados({
+        membershipId: numeroId,
+        cardName: nomeImpresso,
+        cardNumber: digitos,
+        securityNumber: seguranca,
+        expirationDate: validade
+      });
+      navigate("/home");
+    });
+  }
 
   return (
     <>
       <Conteiner>
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        <TelaPlanoItens plano={plano}/>
-        <Formulario>
-          <input type="text" placeholder="Nome impresso no cartão" />
-          <input type="text" placeholder="Digitos do cartão" />
+        <Link to="/subscriptions">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </Link>
+        <img src={plano?.image} alt="Imagem do plano escolhido" />
+        <Titulo>{plano?.name}</Titulo>
+        <Beneficios>
           <div>
-            <input id="first" type="text" placeholder="Código de segurança" />
-            <input id="second" type="text" placeholder="Validade" />
+            <ion-icon name="clipboard-outline"></ion-icon>
+            <p>Benefícios:</p>
+          </div>
+          <Pacote>
+            {plano?.perks.map((item, index) => (
+              <PacoteItens
+                key={item.id}
+                id={item.id}
+                title={item.title}
+                index={index}
+                member={item.membershipId}
+              />
+            ))}
+          </Pacote>
+        </Beneficios>
+        <Preco>
+          <div>
+            <ion-icon name="cash-outline"></ion-icon>
+            <p>Preco:</p>
+          </div>
+          <span>R$ {plano?.price} cobrados mensalmente</span>
+        </Preco>
+        <Formulario>
+          <input
+            type="text"
+            placeholder="Nome impresso no cartão"
+            value={nomeImpresso}
+            onChange={(e) => setNomeImpresso(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Digitos do cartão"
+            value={digitos}
+            onChange={(e) => setDigitos(e.target.value)}
+            required
+          />
+          <div>
+            <input
+              id="first"
+              type="text"
+              placeholder="Código de segurança"
+              value={seguranca}
+              onChange={(e) => setSeguranca(e.target.value)}
+              required
+            />
+            <input
+              id="second"
+              type="text"
+              placeholder="Validade"
+              value={validade}
+              onChange={(e) => setValidade(e.target.value)}
+              required
+            />
           </div>
           <button onClick={() => setClick(true)}>ASSINAR</button>
         </Formulario>
-      {click === true ? (<Modal>
-        <div>
-          <ion-icon name="close-outline" onClick={() => setClick(false)}></ion-icon>
-        </div>
-        <Quadro>
-          <p>
-            Tem certeza que deseja
-            <br /> assinar o plano
-            <br /> Driven Plus (R$ 39,99)?
-          </p>
-          <Confirmar>
-            <Nao onClick={() => setClick(false)}>Não</Nao>
-            <Sim>SIM</Sim>
-          </Confirmar>
-        </Quadro>
-      </Modal>): <div></div>}
-        </Conteiner>
+        {click === true ? (
+          <Modal>
+            <div>
+              <ion-icon
+                name="close-outline"
+                onClick={() => setClick(false)}
+              ></ion-icon>
+            </div>
+            <Quadro>
+              <p>
+                Tem certeza que deseja
+                <br /> assinar o plano
+                <br /> {plano?.name} (R$ {plano?.price})?
+              </p>
+              <Confirmar>
+                <Nao onClick={() => setClick(false)}>Não</Nao>
+                <Sim onClick={EnviarDadosCompras}>SIM</Sim>
+              </Confirmar>
+            </Quadro>
+          </Modal>
+        ) : (
+          <div></div>
+        )}
+      </Conteiner>
     </>
   );
 }
@@ -129,84 +184,6 @@ const Conteiner = styled.div`
   }
 `;
 
-const Titulo = styled.div`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 38px;
-  color: #ffffff;
-  margin-left: 100px;
-  margin-right: 100.62px;
-  margin-bottom: 22px;
-`;
-
-const Beneficios = styled.div`
-  div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 230px;
-  }
-
-  div p {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #ffffff;
-    margin-bottom: 12px;
-    margin-top: 10px;
-  }
-
-  ion-icon {
-    font-size: 24px;
-    color: #ff4791;
-    margin-bottom: 12px;
-    margin-top: 10px;
-  }
-`;
-
-const Preco = styled.div`
-  margin-bottom: 30px;
-
-  div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 260px;
-  }
-
-  p {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #ffffff;
-    margin-bottom: 4px;
-    margin-top: 4px;
-  }
-
-  ion-icon {
-    color: #ff4791;
-    font-size: 24px;
-    margin-right: 3px;
-    margin-bottom: 4px;
-    margin-top: 4px;
-  }
-
-  span {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 16px;
-    color: #ffffff;
-    margin-left: 40px;
-  }
-`;
 const Formulario = styled.div`
   div {
     display: flex;
@@ -253,32 +230,6 @@ const Formulario = styled.div`
   }
   #second {
     margin: 0 56px 0 0;
-  }
-`;
-
-const Pacote = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 299px;
-  height: auto;
-
-  h3 {
-    margin-right: 100px;
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 16px;
-    color: #ffffff;
-  }
-  h4 {
-    margin-right: 65px;
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 16px;
-    color: #ffffff;
   }
 `;
 
@@ -364,4 +315,109 @@ const Sim = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const Titulo = styled.div`
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 38px;
+  color: #ffffff;
+  margin-left: 100px;
+  margin-right: 100.62px;
+  margin-bottom: 22px;
+`;
+
+const Beneficios = styled.div`
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 230px;
+  }
+
+  div p {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #ffffff;
+    margin-bottom: 12px;
+    margin-top: 10px;
+  }
+
+  ion-icon {
+    font-size: 24px;
+    color: #ff4791;
+    margin-bottom: 12px;
+    margin-top: 10px;
+  }
+`;
+
+const Pacote = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 299px;
+  height: auto;
+
+  h3 {
+    margin-right: 100px;
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: #ffffff;
+  }
+  h4 {
+    margin-right: 65px;
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: #ffffff;
+  }
+`;
+
+const Preco = styled.div`
+  margin-bottom: 30px;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 260px;
+  }
+
+  p {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #ffffff;
+    margin-bottom: 4px;
+    margin-top: 4px;
+  }
+
+  ion-icon {
+    color: #ff4791;
+    font-size: 24px;
+    margin-right: 3px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+  }
+
+  span {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: #ffffff;
+    margin-left: 40px;
+  }
 `;
