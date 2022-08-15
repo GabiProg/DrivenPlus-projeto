@@ -10,9 +10,12 @@ export default function TelaPlano() {
   const [digitos, setDigitos] = useState();
   const [seguranca, setSeguranca] = useState();
   const [validade, setValidade] = useState();
+
   const {nomeImpresso ,setNomeImpresso, plano, setPlano} = useContext(UserContext);
+
   const navigate = useNavigate();
   const { ID_DO_PLANO } = useParams();
+  
   const numeroIdSerializado = localStorage.getItem("numeroId");
   const numeroId = JSON.parse(numeroIdSerializado);
   const getToken = JSON.parse(localStorage.getItem("infoToken"));
@@ -324,6 +327,8 @@ const Sim = styled.div`
 `;
 
 const Titulo = styled.div`
+  width: 245px;
+  height: auto;
   font-family: "Roboto";
   font-style: normal;
   font-weight: 700;
@@ -363,28 +368,19 @@ const Beneficios = styled.div`
 `;
 
 const Pacote = styled.div`
+  width: 299px;
+  height: 66px;
   display: flex;
   flex-direction: column;
-  width: 299px;
-  height: auto;
 
   h3 {
-    margin-right: 100px;
     font-family: "Roboto";
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
     color: #ffffff;
-  }
-  h4 {
-    margin-right: 65px;
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 16px;
-    color: #ffffff;
+    margin-right: 50px;
   }
 `;
 

@@ -9,15 +9,12 @@ import TelaHome from "../components/TelaHome";
 import "../assets/Reset.css";
 
 export default function App(){
-    const [token, setToken] = useState();
     const [nomeImpresso, setNomeImpresso] = useState();
     const [plano, setPlano] = useState();
-    const [dados, setDados] = useState();
-    
+   
     return(
     <>
-    <UserContext.Provider value={{token, setToken, nomeImpresso, setNomeImpresso,
-    plano, setPlano, dados, setDados}}>
+    <UserContext.Provider value={{nomeImpresso, setNomeImpresso, plano, setPlano}}>
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<TelaLogin/>}/>

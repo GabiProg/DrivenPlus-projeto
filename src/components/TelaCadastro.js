@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 export default function TelaCadastro() {
@@ -25,7 +25,6 @@ export default function TelaCadastro() {
 
     const promise = axios.post(URL, body);
     promise.then((res) => {
-      console.log(res.data);
       navigate("/");
     });
     promise.catch((err) => {
