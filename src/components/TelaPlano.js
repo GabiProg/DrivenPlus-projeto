@@ -10,19 +10,19 @@ export default function TelaPlano() {
   const [digitos, setDigitos] = useState();
   const [seguranca, setSeguranca] = useState();
   const [validade, setValidade] = useState();
-  const { token, nomeImpresso ,setNomeImpresso, plano, setPlano, setDados} = useContext(UserContext);
+  const {nomeImpresso ,setNomeImpresso, plano, setPlano} = useContext(UserContext);
   const navigate = useNavigate();
   const { ID_DO_PLANO } = useParams();
   const numeroIdSerializado = localStorage.getItem("numeroId");
   const numeroId = JSON.parse(numeroIdSerializado);
-  console.log(numeroId);
+  const getToken = JSON.parse(localStorage.getItem("infoToken"));
 
   useEffect(() => {
     const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions/memberships/${ID_DO_PLANO}`;
 
     const config = {
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${getToken}`
       }
     };
 
@@ -47,23 +47,29 @@ export default function TelaPlano() {
       expirationDate: validade
     };
 
+    localStorage.setItem("infoNome", JSON.stringify(nomeImpresso));
+
     const config = {
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${getToken}`
       }
     };
 
     const promise = axios.post(URL, body, config);
     promise.then((res) =>{
-      console.log(res.data);
-      setDados({
+      const {data} = res;
+      localStorage.setItem("compraInfo", JSON.stringify({
         membershipId: numeroId,
         cardName: nomeImpresso,
         cardNumber: digitos,
         securityNumber: seguranca,
         expirationDate: validade
-      });
+      }));
+      localStorage.setItem("planoApiInfo", JSON.stringify(data));
       navigate("/home");
+    });
+    promise.catch((err) => {
+      alert("Falha ao enviar dados da assinatura.");
     });
   }
 

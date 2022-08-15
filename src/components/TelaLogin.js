@@ -1,39 +1,63 @@
 import styled from "styled-components";
 import IMG from "../assets/Driven_white 1.png";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import UserContext from "../contexts/UserContext";
 import axios from "axios";
 
 export default function TelaLogin(){
-const {token, setToken} = useContext(UserContext);
+const {setToken} = useContext(UserContext);
+
 const navigate = useNavigate();
 
 const [email, setEmail] = useState();
 const [senha, setSenha] = useState();
+const [user, setUser] = useState();
+
+const numeroIdSerializado = localStorage.getItem("numeroId");
+const numeroId = JSON.parse(numeroIdSerializado);
+const dadosPost = JSON.parse(localStorage.getItem("compraInfo"));
 
 function Logar(e){
     e.preventDefault();
 
     const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/auth/login`;
 
-    const body = {
+    const user = {
         email: email,
         password: senha
     };
 
-    const promise = axios.post(URL, body);
+    const promise = axios.post(URL, user);
     promise.then((res) => {
         const {data} = res;
+
+        setUser(data)
+        localStorage.setItem("user", JSON.stringify(data));
+
         setToken(data.token);
-        console.log(data);
-        console.log(data.token);
-        navigate("/subscriptions");
+        localStorage.setItem("infoToken", JSON.stringify(data.token));
     });
     promise.catch((err) => {
         alert("Falha ao fazer Login.");
     });
 }
+
+    useEffect(() => {
+        const userLogado = localStorage.getItem("user");
+        if(userLogado !== null && numeroId > 0){
+            const getUser = JSON.parse(userLogado);
+            setUser(getUser);
+            navigate("/home");
+        }
+        if(userLogado !== null && numeroId === null){
+            const getUser = JSON.parse(userLogado);
+            setUser(getUser);
+            navigate("/subscriptions");
+        } else {
+            navigate("/subscriptions");
+        } 
+    }, []);
 
     return(
     <Conteiner>

@@ -1,12 +1,51 @@
 import styled from "styled-components";
-import Imagem from "../assets/Group 1.png";
-import { useContext } from "react";
-import UserContext from "../contexts/UserContext";
-import {Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function TelaHome(){
-    const {nomeImpresso, plano, dados} = useContext(UserContext);
-    console.log(dados);
+    const navigate = useNavigate();
+    const planoApiInfo = JSON.parse(localStorage.getItem("planoApiInfo"));
+    const infoNome = JSON.parse(localStorage.getItem("infoNome"));
+    const getToken = JSON.parse(localStorage.getItem("infoToken"));
+    const dadosPost = JSON.parse(localStorage.getItem("compraInfo"));
+    
+    function DeletarPlano(e){
+        e.preventDefault();
+
+        const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions`;
+
+        const config = {
+            headers: {
+              "Authorization": `Bearer ${getToken}`
+            }
+          };
+
+        const promise = axios.delete(URL, config);
+        promise.then((res) => {
+            console.log(res.data);
+            navigate("/subscriptions");
+        });  
+    }
+
+    function MudarPlano(e){
+        e.preventDefault();
+
+        const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions`;
+
+        const body = dadosPost;
+
+        const config = {
+            headers: {
+              "Authorization": `Bearer ${getToken}`
+            }
+          };
+
+        const promise = axios.post(URL, body, config);
+        promise.then((res) => {
+            console.log(res.data);
+            navigate("/subscriptions");
+        });  
+    }
 
     function ListarBeneficios({title, link}){
         return(
@@ -18,17 +57,18 @@ export default function TelaHome(){
 
     return(
     <Conteiner>
+
         <Topo>
-            <img src={plano?.image} alt="Imagem do Logo"/>
+            <img src={planoApiInfo?.membership.image} alt="Imagem do Logo"/>
             <ion-icon name="person-circle-outline"></ion-icon>
         </Topo>
-        <Nome>Olá, {nomeImpresso}</Nome>
+        <Nome>Olá, {infoNome}</Nome>
         <Listar>
-            {plano?.perks.map((item) => <ListarBeneficios key={item.id} id={item.id} member={item.membershipId} title={item.title} link={item.link}/>)}
+            {planoApiInfo?.membership.perks.map((item) => <ListarBeneficios key={item.id} id={item.id} member={item.membershipId} title={item.title} link={item.link}/>)}
         </Listar>
         <Botoes>
-            <Trocar>Mudar plano</Trocar>
-            <Cancelar>Cancelar plano</Cancelar>
+            <Trocar onClick={MudarPlano}>Mudar plano</Trocar>
+            <Cancelar onClick={DeletarPlano}>Cancelar plano</Cancelar>
         </Botoes>
     </Conteiner>);
 }
@@ -96,6 +136,7 @@ const Beneficios = styled.div`
 
     a{
         text-decoration: none;
+        color: #FFFFFF;
     }
 `;
 

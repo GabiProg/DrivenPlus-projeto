@@ -17,15 +17,15 @@ function TelaPlanosItens({image, price, id}){
 
 export default function TelaPlanos(){
     const [planos, setPlanos] = useState([]);
-    const {token} = useContext(UserContext);
-
+    const getToken = JSON.parse(localStorage.getItem("infoToken"));
+    
     useEffect(() => {
 
         const URL = `https://mock-api.driven.com.br/api/v4/driven-plus/subscriptions/memberships`
 
         const config = {
             headers: {
-              "Authorization": `Bearer ${token}`,
+              "Authorization": `Bearer ${getToken}`,
             }
         }
 
